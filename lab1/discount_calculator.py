@@ -4,7 +4,7 @@
 def calculate_total(prices, discount_percent):
     """Return the total after applying a percentage discount."""
     subtotal = sum(prices)
-    return subtotal - discount_percent
+    return subtotal * (1 - discount_percent / 100.0)
 
 
 def main():
@@ -13,10 +13,10 @@ def main():
     expected_total = 120.0
     actual_total = calculate_total(prices, discount_percent)
 
-    print(f"Subtotal:       ${sum(prices):.2f}")
-    print(f"Discount:        {discount_percent}%")
-    print(f"Expected total: ${expected_total:.2f}")
-    print(f"Program output: ${actual_total:.2f}")
+    print("Subtotal:       ${:.2f}".format(sum(prices)))
+    print("Discount:        {}%".format(discount_percent))
+    print("Expected total: ${:.2f}".format(expected_total))
+    print("Program output: ${:.2f}".format(actual_total))
 
 
 if __name__ == "__main__":
