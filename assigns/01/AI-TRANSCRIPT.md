@@ -23,7 +23,7 @@ The AI created `assigns/01/ai-translation.py`, preserving:
 
 ## Follow-up prompt
 
-> please do an independent code review to ensure that the code is completley correct
+> please do an independent code review to ensure that the code is completely correct
 
 ## Independent review
 
