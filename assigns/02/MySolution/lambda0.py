@@ -116,6 +116,12 @@ def t0erm_size(term: t0erm) -> sint:
         return 1 + t0erm_size(term.arg2) + t0erm_size(term.arg3)
     elif isinstance(term, T0Mif0):
         return 1 + t0erm_size(term.arg1) + t0erm_size(term.arg2) + t0erm_size(term.arg3)
+    elif isinstance(term, T0Mpair):
+        return 1 + t0erm_size(term.arg1) + t0erm_size(term.arg2)
+    elif isinstance(term, T0Mpfst):
+        return 1 + t0erm_size(term.arg1)
+    elif isinstance(term, T0Mpsnd):
+        return 1 + t0erm_size(term.arg1)
     else:
         raise TypeError(f"t0erm_size({term})")
 ########################################################################
@@ -145,6 +151,12 @@ def t0erm_fvset(term: t0erm) -> fvset:
         return (t0erm_fvset(term.arg2) | t0erm_fvset(term.arg3))
     elif isinstance(term, T0Mif0):
         return (t0erm_fvset(term.arg1) | t0erm_fvset(term.arg2) | t0erm_fvset(term.arg3))
+    elif isinstance(term, T0Mpair):
+        return t0erm_fvset(term.arg1) | t0erm_fvset(term.arg2)
+    elif isinstance(term, T0Mpfst):
+        return t0erm_fvset(term.arg1)
+    elif isinstance(term, T0Mpsnd):
+        return t0erm_fvset(term.arg1)
     else:
         raise TypeError(f"t0erm_fvset({term})")
 ########################################################################
@@ -189,6 +201,12 @@ def t0erm_subst0\
             return T0Mop2(term.arg1, subst0(term.arg2), subst0(term.arg3))
         elif isinstance(term, T0Mif0):
             return T0Mif0(subst0(term.arg1), subst0(term.arg2), subst0(term.arg3))
+        elif isinstance(term, T0Mpair):
+            return T0Mpair(subst0(term.arg1), subst0(term.arg2))
+        elif isinstance(term, T0Mpfst):
+            return T0Mpfst(subst0(term.arg1))
+        elif isinstance(term, T0Mpsnd):
+            return T0Mpsnd(subst0(term.arg1))
         else:
             raise TypeError(f"subst0({term})")
     return subst0(term)
@@ -215,6 +233,23 @@ def t0erm_cbv_evaluate0(term: t0erm) -> t0erm:
                 (t0erm_subst0(t0erm_subst0(t1.arg3, t1.arg2, t2), t1.arg1, t1))
         else:
             raise TypeError(f"t0erm_cbv_evaluate0: application expects a lam/fix ({t1})")
+    elif isinstance(term, T0Mpair):
+        # Call by value evaluates both components from left to right.
+        t1 = t0erm_cbv_evaluate0(term.arg1)
+        t2 = t0erm_cbv_evaluate0(term.arg2)
+        return T0Mpair(t1, t2)
+    elif isinstance(term, T0Mpfst):
+        t1 = t0erm_cbv_evaluate0(term.arg1)
+        if isinstance(t1, T0Mpair):
+            return t1.arg1
+        else:
+            raise TypeError(f"t0erm_cbv_evaluate0: fst expects a pair ({t1})")
+    elif isinstance(term, T0Mpsnd):
+        t1 = t0erm_cbv_evaluate0(term.arg1)
+        if isinstance(t1, T0Mpair):
+            return t1.arg2
+        else:
+            raise TypeError(f"t0erm_cbv_evaluate0: snd expects a pair ({t1})")
     elif isinstance(term, T0Mif0):
         t1 = t0erm_cbv_evaluate0(term.arg1)
         if isinstance(t1, T0Mbtf):
